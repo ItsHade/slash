@@ -1,3 +1,5 @@
+//https://www.youtube.com/watch?v=JPAyj85tJ5E&list=PLT6WFYYZE6uLMcPGS3qfpYm7T_gViYMMt&index=1
+
 #ifndef SLASH_H
 # define SLASH_H
 
@@ -10,8 +12,17 @@
 
 typedef struct
 {
+	int width, height;
+	char *name;
+	SDL_Window *window;
+} t_window;
+
+
+typedef struct
+{
 	int	x;
 	int	y;
+	int size;
 	short	health;
 	char	*name;
 } t_player;
@@ -26,6 +37,7 @@ typedef struct
 {
 	//Players
 	t_player player;
+	t_window window;
 
 	//Stars
 	Star stars[100];

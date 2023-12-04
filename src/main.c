@@ -7,6 +7,7 @@ void	loadGame(GameState *game)
 
 	game->player.x = 320 - 40;
 	game->player.y = 240 - 40;
+	game->player.size = 80;
 
 	//Load images and create textures from them
 	starSurface = IMG_Load("textures/star.png");
@@ -30,7 +31,7 @@ void	loadGame(GameState *game)
 
 }
 
-int processEvents(SDL_Window *window, GameState *game)
+int processEvents(GameState *game)
 {
 	SDL_Event event;
 	int done = 0;
@@ -41,10 +42,10 @@ int processEvents(SDL_Window *window, GameState *game)
 		{
 			case SDL_WINDOWEVENT_CLOSE:
 			{
-				if (window)
+				if (game->window.window)
 				{
-					SDL_DestroyWindow(window);
-					window = NULL;
+					SDL_DestroyWindow(game->window.window);
+					game->window.window = NULL;
 					done = 1;
 				}
 			}
@@ -55,6 +56,9 @@ int processEvents(SDL_Window *window, GameState *game)
 				{
 					case SDLK_ESCAPE:
 						done = 1;
+					break;
+					case SDLK_SPACE:
+						game->player.y -= 200;
 					break;
 				}
 			}
@@ -87,33 +91,33 @@ int processEvents(SDL_Window *window, GameState *game)
 	return (done);
 }
 
-void	doRender(SDL_Renderer *renderer, GameState *game)
+void	doRender(GameState *game)
 {
 	int i = 0;
 	//Render display
 
 	//set the drawing color to blue
-	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+	SDL_SetRenderDrawColor(game->renderer, 0, 0, 255, 255);
 
 	//Clear the screen (to blue)
-	SDL_RenderClear(renderer);
+	SDL_RenderClear(game->renderer);
 
 	//set the drawing color to while
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(game->renderer, 255, 255, 255, 255);
 
 	SDL_Rect rect = {game->player.x, game->player.y, 80, 80};
-	SDL_RenderFillRect(renderer, &rect);
+	SDL_RenderFillRect(game->renderer, &rect);
 
 	//draw the star image
 	while (i < 100)
 	{
 		SDL_Rect starRect = {game->stars[i].x, game->stars[i].y, 64, 64};
-		SDL_RenderCopy(renderer, game->star, NULL, &starRect);
+		SDL_RenderCopy(game->renderer, game->star, NULL, &starRect);
 		i++;
 	}
 
 	//We are done drawing, "present" or show to the screen what we've drawn
-	SDL_RenderPresent(renderer);
+	SDL_RenderPresent(game->renderer);
 
 }
 
@@ -125,18 +129,23 @@ int	main(void)
 
 	SDL_Init(SDL_INIT_VIDEO); //Initialize SDL2
 
+	game.window.width = 1280;
+	game.window.height = 720;
+	game.window.name = "Game Window";
+
 	srandom((int)time(NULL));
 
 	//Create an application window with the following settings:
-	window = SDL_CreateWindow("Game Window",		// window title
+	window = SDL_CreateWindow(game.window.name,		// window title
 				SDL_WINDOWPOS_UNDEFINED,	// initial x position
 				SDL_WINDOWPOS_UNDEFINED,	// initial y position
-				1280,				// width, in pixels
-				720,				// height, in pixels
+				game.window.width,				// width, in pixels
+				game.window.height,				// height, in pixels
 				0				// flags
 				);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	game.renderer = renderer;
+	game.window.window = window;
 
 	loadGame(&game);
 
@@ -146,10 +155,13 @@ int	main(void)
 	//Event loop
 	while (!done)
 	{
+		game.player.y += 5;
+		if (game.player.y + game.player.size > game.window.height)
+			game.player.y = game.window.height - game.player.size;
 		//Check for events
-		done = processEvents(window, &game);
+		done = processEvents(&game);
 
-		doRender(renderer, &game);
+		doRender(&game);
 
 		//don't burn up the CPU
 		// SDL_Delay(10);
