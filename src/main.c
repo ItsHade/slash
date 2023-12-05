@@ -57,9 +57,15 @@ int processEvents(GameState *game)
 					case SDLK_ESCAPE:
 						done = 1;
 					break;
-					case SDLK_SPACE:
-						game->player.y -= 200;
-					break;
+					// case SDLK_SPACE: //jump
+					// 	game->player.y -= 200;
+					// break;
+					// case SDLK_q: //left dash
+					// 	game->player.x -= 200;
+					// break;
+					// case SDLK_e: //right dash
+					// 	game->player.x += 200;
+					// break;
 				}
 			}
 			break;
@@ -155,9 +161,10 @@ int	main(void)
 	//Event loop
 	while (!done)
 	{
-		game.player.y += 5;
-		if (game.player.y + game.player.size > game.window.height)
-			game.player.y = game.window.height - game.player.size;
+		//Gravity
+		// game.player.y += 5;
+		// if (game.player.y + game.player.size > game.window.height)
+		// 	game.player.y = game.window.height - game.player.size;
 		//Check for events
 		done = processEvents(&game);
 
