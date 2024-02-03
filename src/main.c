@@ -127,11 +127,82 @@ void	doRender(GameState *game)
 
 }
 
+void	put_map(char **map)
+{
+	int i = 0;
+
+	while (map[i])
+	{
+		ft_putstr(map[i]);
+		ft_putstr("\n");
+		i++;
+	}
+	ft_putstr("END\n");
+}
+
+int	draw_minimap(SDL_Renderer *map_renderer)
+{
+	int	x;
+	int	y;
+	int	color;
+	int cell = 720 / 8; // 8 being max map_len
+	char *map[8] =
+	{
+		"11111111",
+		"10000001",
+		"10000001",
+		"10000001",
+		"1000N001",
+		"10000001",
+		"11111111",
+		NULL
+	};
+
+	x = 0;
+	color = 100;
+	SDL_SetRenderDrawColor(map_renderer, color, color, color, 255);
+
+	//Clear the screen (to blue)
+	SDL_RenderClear(map_renderer);
+	fprintf(stderr, "cell %d\n", cell);
+	while (map[x])
+	{
+		y = 0;
+		while (map[x][y])
+		{
+			if (map[x][y] == '1')
+				SDL_SetRenderDrawColor(map_renderer, 0, 0, 0, 255);
+			else
+				SDL_SetRenderDrawColor(map_renderer, 255, 255, 255, 255);
+			SDL_Rect rect = {x * cell + 1, y * cell + 1, cell - 1, cell - 1};
+			SDL_RenderFillRect(map_renderer, &rect);
+			if (map[x][y] == 'N' || map[x][y] == 'S' || map[x][y] == 'E' || map[x][y] == 'W')
+			{
+				SDL_SetRenderDrawColor(map_renderer, 255, 0, 0, 255);
+				fprintf(stderr, "x %d\ty %d\n", x, y);
+				SDL_Rect player = {x * cell - cell / 2 - 2, y * cell - cell / 2 - 2, 5, 5};
+				SDL_RenderFillRect(map_renderer, &player);
+			}
+			y++;
+		}
+		x++;
+	}
+	//set the drawing color to while
+	// SDL_SetRenderDrawColor(map_renderer, 255, 255, 255, 255);
+
+	// SDL_Rect rect = {game->player.x, game->player.y, 80, 80};
+	// SDL_RenderFillRect(map_renderer, &rect);
+	SDL_RenderPresent(map_renderer);
+	return (0);
+}
+
 int	main(void)
 {
 	GameState game;
 	SDL_Window *window; //Declare a window
+	SDL_Window *minimap;
 	SDL_Renderer *renderer; //Declare a renderer
+	SDL_Renderer *map_renderer;
 
 	SDL_Init(SDL_INIT_VIDEO); //Initialize SDL2
 
@@ -143,13 +214,21 @@ int	main(void)
 
 	//Create an application window with the following settings:
 	window = SDL_CreateWindow(game.window.name,		// window title
-				SDL_WINDOWPOS_UNDEFINED,	// initial x position
-				SDL_WINDOWPOS_UNDEFINED,	// initial y position
+				0,	// initial x position
+				0,	// initial y position
+				game.window.width,				// width, in pixels
+				game.window.height,				// height, in pixels
+				0				// flags
+				);
+	minimap = SDL_CreateWindow("minimap",		// window title
+				1920 / 2,	// initial x position
+				0,	// initial y position
 				game.window.width,				// width, in pixels
 				game.window.height,				// height, in pixels
 				0				// flags
 				);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	map_renderer = SDL_CreateRenderer(minimap, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	game.renderer = renderer;
 	game.window.window = window;
 
@@ -169,6 +248,7 @@ int	main(void)
 		done = processEvents(&game);
 
 		doRender(&game);
+		draw_minimap(map_renderer);
 
 		//don't burn up the CPU
 		// SDL_Delay(10);
@@ -180,6 +260,8 @@ int	main(void)
 	//Close and destroy the window
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(minimap);
+	SDL_DestroyRenderer(map_renderer);
 
 	//Clean up
 	SDL_Quit();

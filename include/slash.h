@@ -12,6 +12,15 @@
 
 typedef struct
 {
+	int	x;
+	int	y;
+	double	playerx;
+	double	playery;
+	double	angle;
+}	t_minimap;
+
+typedef struct
+{
 	int width, height;
 	char *name;
 	SDL_Window *window;
@@ -48,6 +57,8 @@ typedef struct
 } GameState;
 
 /* PUT FUNCTIONS */
+
+int		ft_strlen(char *str);
 
 void	ft_putchar(char c);
 

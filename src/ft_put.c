@@ -1,5 +1,15 @@
 #include "../include/slash.h"
 
+int	ft_strlen(char *str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i])
+		i++;
+	return (i);
+}
+
 void    ft_putchar(char c)
 {
     write (1, &c, 1);
@@ -7,24 +17,11 @@ void    ft_putchar(char c)
 
 void    ft_putstr(char *str)
 {
-    int i;
-
-    i = 0;
-    while (str[i] != '\0')
-    {
-        write (1, &str[i], 1);
-        i++;
-    }
+	write (1, str, ft_strlen(str));
 }
 
 void	ft_putstr_fd(char *str, int fd)
 {
-	int	i;
 
-	i = 0;
-	while (str[i])
-	{
-		write (fd, &str[i], 1);
-		i++;
-	}
+	write (fd, str, ft_strlen(str));
 }
